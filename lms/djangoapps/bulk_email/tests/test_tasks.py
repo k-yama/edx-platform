@@ -139,11 +139,8 @@ class TestBulkEmailInstructorTask(InstructorTaskCourseTestCase):
                 send_bulk_course_email(task_entry.id, {})  # pylint: disable=E1101
 
     def _create_students(self, num_students):
-        """Create students, a problem, and StudentModule objects for testing"""
-        students = [
-            self.create_student('robot%d' % i) for i in xrange(num_students)
-        ]
-        return students
+        """Create students for testing"""
+        return [self.create_student('robot%d' % i) for i in xrange(num_students)]
 
     def _assert_single_subtask_status(self, entry, succeeded, failed=0, skipped=0, retried_nomax=0, retried_withmax=0):
         """Compare counts with 'subtasks' entry in InstructorTask table."""
@@ -151,22 +148,22 @@ class TestBulkEmailInstructorTask(InstructorTaskCourseTestCase):
         # verify subtask-level counts:
         self.assertEquals(subtask_info.get('total'), 1)
         self.assertEquals(subtask_info.get('succeeded'), 1 if succeeded > 0 else 0)
-        self.assertEquals(subtask_info['failed'], 0 if succeeded > 0 else 1)
+        self.assertEquals(subtask_info.get('failed'), 0 if succeeded > 0 else 1)
         # verify individual subtask status:
-        subtask_status_info = subtask_info['status']
+        subtask_status_info = subtask_info.get('status')
         task_id_list = subtask_status_info.keys()
         self.assertEquals(len(task_id_list), 1)
         task_id = task_id_list[0]
         subtask_status = subtask_status_info.get(task_id)
         print("Testing subtask status: {}".format(subtask_status))
-        self.assertEquals(subtask_status['task_id'], task_id)
-        self.assertEquals(subtask_status['attempted'], succeeded + failed)
-        self.assertEquals(subtask_status['succeeded'], succeeded)
-        self.assertEquals(subtask_status['skipped'], skipped)
-        self.assertEquals(subtask_status['failed'], failed)
-        self.assertEquals(subtask_status['retried_nomax'], retried_nomax)
-        self.assertEquals(subtask_status['retried_withmax'], retried_withmax)
-        self.assertEquals(subtask_status['state'], SUCCESS if succeeded > 0 else FAILURE)
+        self.assertEquals(subtask_status.get('task_id'), task_id)
+        self.assertEquals(subtask_status.get('attempted'), succeeded + failed)
+        self.assertEquals(subtask_status.get('succeeded'), succeeded)
+        self.assertEquals(subtask_status.get('skipped'), skipped)
+        self.assertEquals(subtask_status.get('failed'), failed)
+        self.assertEquals(subtask_status.get('retried_nomax'), retried_nomax)
+        self.assertEquals(subtask_status.get('retried_withmax'), retried_withmax)
+        self.assertEquals(subtask_status.get('state'), SUCCESS if succeeded > 0 else FAILURE)
 
     def _test_run_with_task(self, task_class, action_name, total, succeeded, failed=0, skipped=0, retried_nomax=0, retried_withmax=0):
         """Run a task and check the number of emails processed."""
@@ -182,8 +179,8 @@ class TestBulkEmailInstructorTask(InstructorTaskCourseTestCase):
         status = json.loads(entry.task_output)
         self.assertEquals(status.get('attempted'), succeeded + failed)
         self.assertEquals(status.get('succeeded'), succeeded)
-        self.assertEquals(status['skipped'], skipped)
-        self.assertEquals(status['failed'], failed)
+        self.assertEquals(status.get('skipped'), skipped)
+        self.assertEquals(status.get('failed'), failed)
         self.assertEquals(status.get('total'), total)
         self.assertEquals(status.get('action_name'), action_name)
         self.assertGreater(status.get('duration_ms'), 0)

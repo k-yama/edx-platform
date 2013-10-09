@@ -156,8 +156,7 @@ class TestEmailErrors(ModuleStoreTestCase):
         self.assertEqual(email_id, -1)
         self.assertFalse(result.called)
 
-    @patch('bulk_email.tasks.log')
-    def test_nonexistent_course(self, mock_log):
+    def test_nonexistent_course(self):
         """
         Tests exception when the course in the email doesn't exist
         """
@@ -166,14 +165,10 @@ class TestEmailErrors(ModuleStoreTestCase):
         email.save()
         entry = InstructorTask.create(course_id, "task_type", "task_key", "task_input", self.instructor)
         task_input = {"email_id": email.id}  # pylint: disable=E1101
-        with self.assertRaises(Exception):
+        with self.assertRaisesRegexp(ValueError, "Course not found"):
             perform_delegate_email_batches(entry.id, course_id, task_input, "action_name")  # pylint: disable=E1101
-        ((log_str, _, _), _) = mock_log.exception.call_args
-        self.assertTrue(mock_log.exception.called)
-        self.assertIn('get_course_by_id failed:', log_str)
 
-    @patch('bulk_email.tasks.log')
-    def test_nonexistent_to_option(self, mock_log):
+    def test_nonexistent_to_option(self):
         """
         Tests exception when the to_option in the email doesn't exist
         """
@@ -181,12 +176,8 @@ class TestEmailErrors(ModuleStoreTestCase):
         email.save()
         entry = InstructorTask.create(self.course.id, "task_type", "task_key", "task_input", self.instructor)
         task_input = {"email_id": email.id}  # pylint: disable=E1101
-        with self.assertRaises(Exception):
+        with self.assertRaisesRegexp(Exception, 'Unexpected bulk email TO_OPTION found: IDONTEXIST'):
             perform_delegate_email_batches(entry.id, self.course.id, task_input, "action_name")  # pylint: disable=E1101
-        ((log_str, opt_str), _) = mock_log.error.call_args
-        self.assertTrue(mock_log.error.called)
-        self.assertIn('Unexpected bulk email TO_OPTION found', log_str)
-        self.assertEqual("IDONTEXIST", opt_str)
 
     def test_wrong_course_id_in_task(self):
         """

@@ -93,6 +93,26 @@ class InstructorTaskReportTest(InstructorTaskTestCase):
         }
         self.assertEquals(output['task_progress'], expected_progress)
 
+    def test_get_status_from_legacy_success(self):
+        # get status for a task that had already succeeded, back at a time
+        # when 'updated' was used instead of the preferred 'succeeded'.
+        legacy_progress = {
+            'attempted': 3,
+            'updated': 2,
+            'total': 5,
+            'action_name': 'rescored',
+        }
+        instructor_task = self._create_entry(task_state=SUCCESS, task_output=legacy_progress)
+        task_id = instructor_task.task_id
+        response = self._get_instructor_task_status(task_id)
+        output = json.loads(response.content)
+        self.assertEquals(output['message'], "Problem rescored for 2 of 3 students (out of 5)")
+        self.assertEquals(output['succeeded'], False)
+        self.assertEquals(output['task_id'], task_id)
+        self.assertEquals(output['task_state'], SUCCESS)
+        self.assertFalse(output['in_progress'])
+        self.assertEquals(output['task_progress'], legacy_progress)
+
     def _create_email_subtask_entry(self, total=5, attempted=3, succeeded=2, skipped=0, task_state=PROGRESS):
         """Create an InstructorTask with subtask defined and email argument."""
         progress = {'attempted': attempted,
