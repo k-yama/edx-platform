@@ -755,8 +755,8 @@ def send_email(request, course_id):
     Send an email to self, staff, or everyone involved in a course.
     Query Parameters:
     - 'send_to' specifies what group the email should be sent to
-       Options are defined by SEND_TO_OPTIONS in
-       lms/djangoapps/instructor/features/bulk_email.py
+       Options are defined by the Email model in
+       lms/djangoapps/bulk_email/models.py
     - 'subject' specifies email's subject
     - 'message' specifies email's content
     """

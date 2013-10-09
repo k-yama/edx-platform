@@ -1,6 +1,6 @@
 @shard_2
 Feature: Bulk Email
-    As an instructor,
+    As an instructor or course staff,
     In order to communicate with students and staff
     I want to send email to staff and students in a course.
 
