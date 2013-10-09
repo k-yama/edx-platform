@@ -406,7 +406,7 @@ def _send_course_email(entry_id, email_id, to_list, global_email_context, subtas
     course_title = global_email_context['course_title']
     subject = "[" + course_title + "] " + course_email.subject
     course_title_no_quotes = re.sub(r'"', '', course_title)
-    course_num = msg.course_id.split('/')[1]  # course_id = 'org/course_num/run'
+    course_num = course_email.course_id.split('/')[1]  # course_id = 'org/course_num/run'
     # Substitute a '_' anywhere a non-(ascii, period, or dash) character appears.
     INVALID_CHARS = re.compile(r"[^\w.-]")
     course_num = INVALID_CHARS.sub('_', course_num)
